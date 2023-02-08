@@ -24,6 +24,15 @@ function newOption(string $name, string $description, int $type, bool $required 
     ;
 }
 
+function newEmbedField(string $name, string $value, bool $inline = false): array
+{
+    return [
+        "name" => $name,
+        "value" => $value,
+        "inline" => $inline
+    ];
+}
+
 function newChoice(string $name, float|int|string $value): Choice
 {
     return newPartDiscord(Choice::class)
@@ -40,13 +49,6 @@ function newPartDiscord(string $class, mixed ...$args): mixed
 function messageWithContent(string $content): MessageBuilder
 {
     return MessageBuilder::new()->setContent($content);
-}
-
-function createLocalFileAttachment(string $fileName): Attachment
-{
-    return new Attachment(Env::get()->discord, [
-        "filename" => $fileName
-    ]);
 }
 
 function buildActionRowWithButtons(Button ...$buttons): ActionRow

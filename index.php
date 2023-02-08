@@ -6,6 +6,7 @@
 
 use CommandString\Env\Env;
 use Discord\Discord;
+use Discord\WebSockets\Intents;
 
 require_once __DIR__."/vendor/autoload.php";
 
@@ -21,6 +22,7 @@ $env = Env::createFromJsonFile("./env.json");
 
 $env->discord = new Discord([
     "token" => $env->token,
+    "intents" => Intents::getDefaultIntents()
 ]);
 
 # _______  _____  _______ _______ _______ __   _ ______  _______
@@ -28,7 +30,7 @@ $env->discord = new Discord([
 # |_____  |_____| |  |  | |  |  | |     | |  \_| |_____/ ______|
 
 $env->commands = [
-    Commands\Ping::class
+    Commands\Info::class
 ];
 
 # _______ _    _ _______ __   _ _______ _______
@@ -44,8 +46,7 @@ $env->events = [
 # __|__ |  \_|    |    |______ |    \_ |     | |_____     |    __|__ |_____| |  \_| ______|
 
 $env->interactions = [
-    Interactions\Ping::class,
-    Interactions\Pong::class
+    
 ];
 
 Events\ready::listen();

@@ -29,5 +29,7 @@ class ready extends BaseEvent {
                 echo "Listening for $typeString: \"$class\"\n";
             }
         }
+
+        Env::get()->started = time();
     }
 }

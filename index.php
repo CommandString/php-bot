@@ -7,6 +7,7 @@
 use CommandString\Env\Env;
 use Discord\Discord;
 use Discord\WebSockets\Intents;
+use React\Http\Browser;
 
 require_once __DIR__."/vendor/autoload.php";
 
@@ -45,9 +46,9 @@ $env->events = [
 #   |   | \  |    |    |______ |_____/ |_____| |          |      |   |     | | \  | |______
 # __|__ |  \_|    |    |______ |    \_ |     | |_____     |    __|__ |_____| |  \_| ______|
 
-$env->interactions = [
-    
-];
+$env->interactions = [];
+
+$env->browser = new Browser();
 
 Events\ready::listen();
 

@@ -19,7 +19,7 @@ use function React\Async\await;
 
 class Functions extends BaseCommand {
     protected static array|string $name = ["manual", ["functions"]];
-    
+
     public static function handler(Interaction $interaction): void
     {
         $functionName = getOptionFromInteraction($interaction, "functions", "query")->value;
@@ -42,7 +42,7 @@ class Functions extends BaseCommand {
         $dom = hQuery::fromHTML($html);
         $header = $func->header;
 
-        /** @var Embed */
+        /** @var Embed $embed */
         $embed = newPartDiscord(Embed::class);
 
         $embed

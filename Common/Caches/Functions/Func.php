@@ -17,7 +17,7 @@ class Func {
     public readonly string $name;
     public readonly string $href;
     public readonly ?string $header;
-    // public readonly
+    public readonly array $examples;
 
     public function __construct(
         public readonly stdClass $raw
@@ -136,6 +136,20 @@ class Func {
         }
 
         # GET EXAMPLES
-        // TODO
+        $examples = [];
+
+        foreach ($dom->find("div.example") ?? [] as $example) {
+
+            $title = trim($example->find("p > strong")->text());
+
+            $code = hQuery::fromHTML(str_replace(["<br>", "<br />"], "\n", $example->find("code")->html()))->text();
+
+            $examples[] = [
+                "title" => $title,
+                "code" => $code
+            ];
+        }
+
+        $this->examples = $examples;
     }
 }

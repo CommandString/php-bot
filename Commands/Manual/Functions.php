@@ -7,6 +7,8 @@ use CommandString\Env\Env;
 use Common\Caches\Functions\Functions as FunctionsCache;
 use Discord\Builders\CommandBuilder;
 use Discord\Builders\Components\Button;
+use Discord\Builders\Components\Option;
+use Discord\Builders\Components\StringSelect;
 use Discord\Builders\MessageBuilder;
 use Discord\Parts\Embed\Embed;
 use Discord\Parts\Interactions\Interaction;
@@ -45,6 +47,8 @@ class Functions extends BaseCommand {
         $dom = hQuery::fromHTML($html);
         $header = $func->header;
 
+        $message = MessageBuilder::new();
+
         /** @var Embed $embed */
         $embed = newPartDiscord(Embed::class);
 
@@ -54,7 +58,19 @@ class Functions extends BaseCommand {
             ->setDescription("```php\n".$header."\n```".trim($dom->find(".refpurpose > .dc-title")->first()->text()))
         ;
 
-        $message = MessageBuilder::new()->addEmbed($embed)->addComponent(buildActionRowWithButtons(newButton(Button::STYLE_PRIMARY, "Examples", "FunctionExamples|$functionName")));
+        if (!empty($func->examples)) {
+            $menu = (new StringSelect("FunctionExamples|{$func->name}"))->setPlaceholder("Examples for {$func->name}");   
+    
+            foreach ($func->examples as $key => $example) {
+                $menu->addOption(new Option($example["title"], $key));
+            }
+
+            $message->addComponent($menu)->addComponent(buildActionRowWithButtons(newButton(Button::STYLE_PRIMARY, "Function Header", "FunctionExamples|{$func->name}|-1")));
+        }
+
+        $message
+            ->addEmbed($embed)
+        ;
 
         return $message;
     }

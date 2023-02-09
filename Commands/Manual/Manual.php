@@ -11,7 +11,7 @@ use function Common\newOption;
 
 class Manual extends BaseCommand {
     protected static array|string $name = "manual";
-    
+
     public static function handler(Interaction $interaction): void
     {
         // check other files
@@ -19,9 +19,9 @@ class Manual extends BaseCommand {
 
     public static function getConfig(): CommandBuilder|array
     {
-        $newOption = function (string $name): Option
+        $newOption = static function (string $name): Option
         {
-            return newOption($name, "Search for $name in the PHP manual.", Option::SUB_COMMAND)
+            return newOption($name, "Search for {$name} in the PHP manual.", Option::SUB_COMMAND)
                 ->addOption(newOption("query", "Search Query", Option::STRING, true)->setAutoComplete(true))
             ;
         };

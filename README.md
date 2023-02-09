@@ -5,7 +5,6 @@
 # PHP Bot
 A bot that used for helping PHP developers debug problems, search docs, and even run code!
 
-
 ## TODO
 
 * Functions

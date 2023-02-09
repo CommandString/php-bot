@@ -144,10 +144,7 @@ class Func {
 
             $code = hQuery::fromHTML(str_replace(["<br>", "<br />"], "\n", $example->find("code")->html()))->text();
 
-            $examples[] = [
-                "title" => $title,
-                "code" => $code
-            ];
+            $examples[] = compact('title', 'code');
         }
 
         $this->examples = $examples;

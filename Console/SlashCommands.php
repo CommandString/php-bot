@@ -6,14 +6,12 @@ namespace Console;
 use CommandString\Env\Env;
 use Discord\Discord;
 use Monolog\Handler\NullHandler;
-use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use \Symfony\Component\Console\Attribute\AsCommand;
 use \Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use \Symfony\Component\Console\Input\InputInterface;
 use \Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\Question;
 use Throwable;
 
 use function React\Async\await;
@@ -84,7 +82,7 @@ class SlashCommands extends Command
                     }
                 }
 
-                $discord->close(true);
+                $discord->close();
             } else {
 				foreach ($commands as $i => $value) {
 					$command = "Commands\\{$value}";
@@ -108,14 +106,14 @@ class SlashCommands extends Command
 						$output->writeln("<info>Successfully saved {$commandName}</info>");
 
 						if ($close) {
-							$discord->close(true);
+							$discord->close();
 						}
 					}, static function (Throwable $passed) use ($output, $action, $commandName, $close, $discord)
 					{
 							$output->writeln("<error>Failed to {$action} {$commandName}</error>\n</info>{$passed->getMessage()}</info>");
 
 							if ($close) {
-								$discord->close(true);
+								$discord->close();
 							}
 						}
 					);

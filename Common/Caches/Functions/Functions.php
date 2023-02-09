@@ -13,8 +13,8 @@ final class Functions {
     /**
      * @var Func[]
      */
-    private array $functions = [];
-    private array $raw = [];
+    private array       $functions = [];
+    private array       $raw;
     private static self $instance;
 
     public function __construct()
@@ -33,15 +33,20 @@ final class Functions {
     {
         foreach (scandir(__DIR__) as $file_name) {
             if (preg_match("/(?P<string>functions.*.json)/", $file_name)) {
-                $file_path = __DIR__ . "/$file_name";
+                $file_path = __DIR__ . "/{$file_name}";
             }
         }
+
+		if (!isset($file_path, $file_name)) {
+			self::updateCache();
+			return self::fetchCache();
+		}
 
         if (!file_exists($file_path)) {
             self::updateCache();
             return self::fetchCache();
         }
-        
+
         $timestamp = (int)explode(".", $file_name)[1];
 
         if (time() - $timestamp > 604800) {
@@ -55,10 +60,10 @@ final class Functions {
 
     private static function updateCache(): void
     {
-        /** @var Browser */
+        /** @var Browser $browser */
         $browser = Env::get("browser");
 
-        /** @var ResponseInterface */
+        /** @var ResponseInterface $res */
         $res = await($browser->get("https://www.php.net/manual/en/indexes.functions.php"));
         $html = (string) $res->getBody();
         $dom = hQuery::fromHTML($html);
@@ -68,7 +73,7 @@ final class Functions {
         foreach ($dom->find("a.index") as $item) {
             $cacheItem["name"] = $item->text();
             $cacheItem["href"] = $item->attr("href");
-            
+
             $cache[] = $cacheItem;
         }
 
@@ -101,13 +106,10 @@ final class Functions {
         foreach ($this->raw as $key => $func) {
             $similar = levenshtein($func->name, $name);
 
-            $list[] = [
-                "similar" => $similar,
-                "key" => $key
-            ];
+            $list[] = compact('similar', 'key');
         }
 
-        usort($list, function ($a, $b) {
+        usort($list, static function ($a, $b) {
             return ($a["similar"] > $b["similar"]);
         });
 

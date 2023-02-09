@@ -17,7 +17,7 @@ class Func {
     public readonly string $name;
     public readonly string $href;
     public readonly ?string $header;
-    // public readonly 
+    // public readonly
 
     public function __construct(
         public readonly stdClass $raw
@@ -67,7 +67,7 @@ class Func {
                         $default = $param->getDefaultValue();
 
                         if (is_string($default)) {
-                            $paramString .= "\"$default\"";
+                            $paramString .= "\"{$default}\"";
                         } else if (is_int($default) || is_float($default)) {
                             $paramString .= $default;
                         } else if (is_array($default)) {
@@ -95,26 +95,41 @@ class Func {
             }
 
             $this->header = $header;
-        } catch (Throwable) {            
+        } catch (Throwable) {
             $headerElement = $dom->find(".description > .dc-description");
 
             if (is_null($headerElement)) {
                 $this->header = "/* Cannot Generate Header */";
             } else {
                 $header = trim($headerElement->get(0)->text());
-                $header = str_replace(" ", "", $header);
-                $header = str_replace(" ", "", $header);
+				$header = str_replace([
+					" ",
+					" "
+				], "", $header);
 
                 if (!str_contains($header, "()")) {
-                    $header = str_replace("(", "(\n   ", $header);
-                    $header = str_replace(",", ",\n   ", $header);
-                    $header = str_replace(")", "\n)", $header);
-                    $header = str_replace("=", " = ", $header);
-                    $header = str_replace("$", " $", $header);
+					$header = str_replace([
+						"(",
+						",",
+						")",
+						"=",
+						"$"
+					], [
+						"(\n   ",
+						",\n   ",
+						"\n)",
+						" = ",
+						" $"
+					], $header);
                 }
 
-                $header = str_replace(":", ": ", $header);
-                $header = str_replace(": : ", "::", $header);
+				$header = str_replace([
+					":",
+					": : "
+				], [
+					": ",
+					"::"
+				], $header);
 
                 $this->header = $header;
             }

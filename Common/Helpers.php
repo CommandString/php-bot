@@ -7,7 +7,6 @@ use Discord\Builders\Components\ActionRow;
 use Discord\Builders\Components\Button;
 use Discord\Builders\MessageBuilder;
 use Discord\Helpers\Collection;
-use Discord\Parts\Channel\Attachment;
 use Discord\Parts\Embed\Embed;
 use Discord\Parts\Interactions\Command\Choice;
 use Discord\Parts\Interactions\Command\Option;
@@ -26,11 +25,7 @@ function newOption(string $name, string $description, int $type, bool $required 
 
 function newEmbedField(string $name, string $value, bool $inline = false): array
 {
-    return [
-        "name" => $name,
-        "value" => $value,
-        "inline" => $inline
-    ];
+    return compact('name', 'value', 'inline');
 }
 
 function newChoice(string $name, float|int|string $value): Choice
@@ -54,7 +49,7 @@ function messageWithContent(string $content): MessageBuilder
 function buildActionRowWithButtons(Button ...$buttons): ActionRow
 {
     $actionRow = new ActionRow();
-    
+
     foreach ($buttons as $button) {
         $actionRow->addComponent($button);
     }
@@ -85,6 +80,7 @@ function getOptionFromInteraction(Collection|Interaction $options, string ...$na
         }
     }
 
+	// TODO this is probably not what you want, $option might be undefined here
     return $option;
 }
 
@@ -94,7 +90,7 @@ function emptyEmbedField(?Embed $embed = null): array|Embed
 
     if (!is_null($embed)) {
         return $embed->addField($emptyField);
-    } else {
-        return $emptyField;
     }
+
+	return $emptyField;
 }

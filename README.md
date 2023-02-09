@@ -19,4 +19,4 @@ A bot that used for helping PHP developers debug problems, search docs, and even
 * Classes
   * Search
   * Get examples
-  * Run exampple
+  * Run examples

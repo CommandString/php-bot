@@ -11,22 +11,28 @@ class ready extends BaseEvent {
     private const COMMANDS = 0;
     private const EVENTS = 1;
     private const INTERACTIONS = 2;
-    
-    public static function handler(Discord $discord = null): void
+
+    public static function handler(?Discord $discord = null): void
     {
-        echo "\n{$discord->application->name} ready!\n\n";
+        echo "\n{$discord?->application->name} ready!\n\n";
 
         $listened = [Env::get("commands"), Env::get("events"), Env::get("interactions")];
 
         foreach ($listened as $type => $classes) {
-            $typeString = ($type === self::COMMANDS) ? "command" : (($type === self::EVENTS) ? "event" : (($type === self::INTERACTIONS) ? "interaction" : ""));
+            $typeString = ($type === self::COMMANDS)
+				? "command"
+				: (($type === self::EVENTS)
+					? "event"
+					: (($type === self::INTERACTIONS)
+						? "interaction"
+						: ""));
 
             foreach ($classes as $class) {
                 if ($class !== self::class) {
                     $class::listen();
                 }
 
-                echo "Listening for $typeString: \"$class\"\n";
+                echo "Listening for {$typeString}: \"{$class}\"\n";
             }
         }
 

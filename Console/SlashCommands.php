@@ -39,11 +39,11 @@ class SlashCommands extends Command
             $output->writeln("<error>Invalid action</error>");
             die();
         }
-        
+
         $verb = ($action !== "deleteall") ? $verbs[$action] : null;
 
         $commands = $input->getArgument("slash-commands");
-        
+
         if ($action !== "deleteall" && empty($commands)) {
             $output->writeln("<error>You must supply slash-commands for this option</error>");
             die();
@@ -60,12 +60,13 @@ class SlashCommands extends Command
             'logger' => (new Logger('Logger'))->pushHandler(new NullHandler())
         ]);
 
-        $env->discord->on("ready", function () use ($commands, $action, $output, $verb) {
+        $env->discord->on("ready", static function () use ($action, $output, $commands, $verb)
+		{
             /**
-             * @var \Discord\Discord
+             * @var Discord $discord
              */
             $discord = Env::get()->discord;
-            
+
             if ($action === 'deleteall') {
                 $globalCommands = await($discord->application->commands->freshen());
 
@@ -85,41 +86,43 @@ class SlashCommands extends Command
 
                 $discord->close(true);
             } else {
-                for ($i = 0; $i < count($commands); $i++) {
-                    $command = "Commands\\{$commands[$i]}";
+				foreach ($commands as $i => $value) {
+					$command = "Commands\\{$value}";
 
-                    if (!class_exists($command)) {
-                        $output->writeln('<error>Command class "' . $command . '" cannot be found!</error>');
-                        die();
-                    }
+					if (!class_exists($command)) {
+						$output->writeln('<error>Command class "' . $command . '" cannot be found!</error>');
+						die();
+					}
 
-                    $commandName = $command::getName();
+					$commandName = $command::getName();
 
-                    if (is_array($commandName)) {
-                        $commandName = $commandName[0];
-                    }
+					if (is_array($commandName)) {
+						$commandName = $commandName[0];
+					}
 
-                    $output->writeln("<info>$verb $commandName command</info>");
-                    $close = ($i === count($commands)-1);
+					$output->writeln("<info>{$verb} {$commandName} command</info>");
+					$close = ($i === count($commands)-1);
 
-                    $command::$action()->done(function ($commandName) use ($output, $discord, $close) {
-                        $output->writeln("<info>Successfully saved $commandName</info>");
+					$command::$action()->done(static function ($commandName) use ($output, $close, $discord)
+					{
+						$output->writeln("<info>Successfully saved {$commandName}</info>");
 
-                        if ($close) {
-                            $discord->close(true);
-                        }
-                    }, function (Throwable $passed) use ($output, $action, $commandName, $discord, $close) {
-                            $output->writeln("<error>Failed to $action $commandName</error>\n</info>{$passed->getMessage()}</info>");
+						if ($close) {
+							$discord->close(true);
+						}
+					}, static function (Throwable $passed) use ($output, $action, $commandName, $close, $discord)
+					{
+							$output->writeln("<error>Failed to {$action} {$commandName}</error>\n</info>{$passed->getMessage()}</info>");
 
-                            if ($close) {
-                                $discord->close(true);
-                            }
-                        }
-                    );
-                }
-            }
+							if ($close) {
+								$discord->close(true);
+							}
+						}
+					);
+				}
+			}
         });
-        
+
         $env->discord->run();
 
         return Command::SUCCESS;

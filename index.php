@@ -47,7 +47,9 @@ $env->events = [
 #   |   | \  |    |    |______ |_____/ |_____| |          |      |   |     | | \  | |______
 # __|__ |  \_|    |    |______ |    \_ |     | |_____     |    __|__ |_____| |  \_| ______|
 
-$env->interactions = [];
+$env->interactions = [
+    Interactions\FunctionExamples::class
+];
 
 $env->browser = new Browser();
 

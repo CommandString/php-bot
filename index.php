@@ -31,7 +31,8 @@ $env->discord = new Discord([
 # |_____  |_____| |  |  | |  |  | |     | |  \_| |_____/ ______|
 
 $env->commands = [
-    Commands\Info::class
+    Commands\Info::class,
+    Commands\Manual\Functions::class
 ];
 
 # _______ _    _ _______ __   _ _______ _______

@@ -6,13 +6,16 @@ use Commands\BaseCommand;
 use CommandString\Env\Env;
 use Common\Caches\Functions\Functions as FunctionsCache;
 use Discord\Builders\CommandBuilder;
+use Discord\Builders\Components\Button;
 use Discord\Builders\MessageBuilder;
 use Discord\Parts\Embed\Embed;
 use Discord\Parts\Interactions\Interaction;
 use duzun\hQuery;
 
+use function Common\buildActionRowWithButtons;
 use function Common\getOptionFromInteraction;
 use function Common\messageWithContent;
+use function Common\newButton;
 use function Common\newChoice;
 use function Common\newPartDiscord;
 use function React\Async\await;
@@ -26,10 +29,10 @@ class Functions extends BaseCommand {
 
         $message = MessageBuilder::new();
 
-        $interaction->respondWithMessage($message->addEmbed(self::generateFunctionEmbed($functionName) ?? messageWithContent("Unable to find function.")));
+        $interaction->respondWithMessage(self::generateFunctionMessage($functionName) ?? messageWithContent("Unable to find function."));
     }
 
-    public static function generateFunctionEmbed(string $functionName): ?Embed
+    public static function generateFunctionMessage(string $functionName): ?MessageBuilder
     {
         $func = FunctionsCache::get()->getByName($functionName);
 
@@ -51,7 +54,9 @@ class Functions extends BaseCommand {
             ->setDescription("```php\n".$header."\n```".trim($dom->find(".refpurpose > .dc-title")->first()->text()))
         ;
 
-        return $embed;
+        $message = MessageBuilder::new()->addEmbed($embed)->addComponent(buildActionRowWithButtons(newButton(Button::STYLE_PRIMARY, "Examples", "FunctionExamples|$functionName")));
+
+        return $message;
     }
 
     public static function autocomplete(Interaction $interaction): void

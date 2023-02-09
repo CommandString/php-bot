@@ -1,6 +1,6 @@
 <?php
 
-namespace Common\Caches;
+namespace Common\Caches\Functions;
 
 use CommandString\Env\Env;
 use duzun\hQuery;
@@ -10,12 +10,16 @@ use React\Http\Browser;
 use function React\Async\await;
 
 final class Functions {
-    private array $items = [];
+    /**
+     * @var Func[]
+     */
+    private array $functions = [];
+    private array $raw = [];
     private static self $instance;
 
     public function __construct()
     {
-        $this->items = self::fetchCache();
+        $this->raw = self::fetchCache();
 
         self::$instance = $this;
     }
@@ -27,25 +31,26 @@ final class Functions {
 
     private static function fetchCache(): array
     {
-        foreach (scandir(__DIR__) as $file) {
-            if (preg_match("/(?P<string>functions.*.json)/", $file)) {
-                $file_dir = __DIR__ . "/$file";
+        foreach (scandir(__DIR__) as $file_name) {
+            if (preg_match("/(?P<string>functions.*.json)/", $file_name)) {
+                $file_path = __DIR__ . "/$file_name";
             }
         }
 
-        if (!file_exists($file_dir)) {
+        if (!file_exists($file_path)) {
             self::updateCache();
             return self::fetchCache();
         }
         
-        $timestamp = (int)explode(".", $file)[1];
+        $timestamp = (int)explode(".", $file_name)[1];
 
         if (time() - $timestamp > 604800) {
+            unlink($file_path);
             self::updateCache();
             return self::fetchCache();
         }
 
-        return json_decode(file_get_contents($file_dir), true);
+        return json_decode(file_get_contents($file_path));
     }
 
     private static function updateCache(): void
@@ -72,20 +77,17 @@ final class Functions {
 
     public function getByName(string $name): ?Func
     {
-        $func = $this->getByNameRaw($name);
-
-        if ($func === null) {
-            return null;
+        foreach ($this->functions as $function) {
+            if ($function->name === $name) {
+                return $function;
+            }
         }
 
-        return new Func($func);
-    }
-
-    public function getByNameRaw(string $name): ?array
-    {
-        foreach ($this->items as $item) {
-            if ($item["name"] === $name) {
-                return $item;
+        foreach ($this->raw as $function) {
+            if ($function->name === $name) {
+                $func = new Func($function);
+                $this->functions[] = $func;
+                return $func;
             }
         }
 
@@ -96,14 +98,8 @@ final class Functions {
     {
         $list = [];
 
-        foreach ($this->items as $key => $item) {
-            $itemName = $item["name"];
-
-            if (str_contains($itemName, "::")) {
-                $itemName = explode("::", $itemName)[1];
-            }
-
-            $similar = levenshtein($item["name"], $name);
+        foreach ($this->raw as $key => $func) {
+            $similar = levenshtein($func->name, $name);
 
             $list[] = [
                 "similar" => $similar,
@@ -117,8 +113,8 @@ final class Functions {
 
         $items = [];
 
-        foreach ($list as $item) {
-            $items[] = $this->items[$item["key"]];
+        foreach ($list as $func) {
+            $items[] = $this->raw[$func["key"]];
 
             if (count($items) >= $limit) {
                 break;

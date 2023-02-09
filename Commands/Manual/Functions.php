@@ -4,7 +4,7 @@ namespace Commands\Manual;
 
 use Commands\BaseCommand;
 use CommandString\Env\Env;
-use Common\Caches\Functions as FunctionsCache;
+use Common\Caches\Functions\Functions as FunctionsCache;
 use Discord\Builders\CommandBuilder;
 use Discord\Builders\MessageBuilder;
 use Discord\Parts\Embed\Embed;
@@ -24,7 +24,7 @@ class Functions extends BaseCommand {
     {
         $functionName = getOptionFromInteraction($interaction, "functions", "query")->value;
 
-        $message = MessageBuilder::new ();
+        $message = MessageBuilder::new();
 
         $interaction->respondWithMessage($message->addEmbed(self::generateFunctionEmbed($functionName) ?? messageWithContent("Unable to find function.")));
     }
@@ -62,7 +62,7 @@ class Functions extends BaseCommand {
 
         $choices = [];
         foreach ($results as $result) {
-            $choices[] = newChoice($result['name'], $result['name']);
+            $choices[] = newChoice($result->name, $result->name);
         }
 
         $interaction->autoCompleteResult($choices);

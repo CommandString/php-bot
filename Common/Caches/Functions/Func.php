@@ -1,12 +1,13 @@
 <?php
 
-namespace Common\Caches;
+namespace Common\Caches\Functions;
 
 use CommandString\Env\Env;
 use duzun\hQuery;
 use ReflectionClass;
 use ReflectionFunction;
 use ReflectionMethod;
+use stdClass;
 use Throwable;
 
 use function React\Async\await;
@@ -16,13 +17,19 @@ class Func {
     public readonly string $name;
     public readonly string $href;
     public readonly ?string $header;
+    // public readonly 
 
     public function __construct(
-        public readonly array $raw
+        public readonly stdClass $raw
     ) {
-        $this->name = $raw["name"];
-        $this->href = $raw["href"];
+        $this->name = $raw->name;
+        $this->href = $raw->href;
 
+        $res = await(Env::get()->browser->get($this->href));
+        $html = (string) $res->getBody();
+        $dom = hQuery::fromHTML($html);
+
+        # GENERATE METHOD HEADER
         try {
             if (str_contains($this->name, "::")) {
                 $parts = explode("::", $this->name);
@@ -88,20 +95,32 @@ class Func {
             }
 
             $this->header = $header;
-        } catch (Throwable) {
-            $res = await(Env::get()->browser->get($this->href));
-            $html = (string) $res->getBody();
-            $dom = hQuery::fromHTML($html);
+        } catch (Throwable) {            
+            $headerElement = $dom->find(".description > .dc-description");
 
-            $header = trim($dom->find(".description > .dc-description")->get(0)->text());
-            $header = str_replace(" ", "", $header);
-            $header = str_replace(" ", "", $header);
-            $header = str_replace("(", "(\n   ", $header);
-            $header = str_replace(",", ",\n   ", $header);
-            $header = str_replace(")", "\n)", $header);
-            $header = str_replace(":", ": ", $header);
+            if (is_null($headerElement)) {
+                $this->header = "/* Cannot Generate Header */";
+            } else {
+                $header = trim($headerElement->get(0)->text());
+                $header = str_replace(" ", "", $header);
+                $header = str_replace(" ", "", $header);
 
-            $this->header = $header;
+                if (!str_contains($header, "()")) {
+                    $header = str_replace("(", "(\n   ", $header);
+                    $header = str_replace(",", ",\n   ", $header);
+                    $header = str_replace(")", "\n)", $header);
+                    $header = str_replace("=", " = ", $header);
+                    $header = str_replace("$", " $", $header);
+                }
+
+                $header = str_replace(":", ": ", $header);
+                $header = str_replace(": : ", "::", $header);
+
+                $this->header = $header;
+            }
         }
+
+        # GET EXAMPLES
+        // TODO
     }
 }

@@ -3,29 +3,49 @@
 namespace Common\Caches;
 
 use CommandString\Env\Env;
+use duzun\hQuery;
 use Psr\Http\Message\ResponseInterface;
 use React\Http\Browser;
-use stdClass;
 
 use function React\Async\await;
 
 final class Functions {
-    private static array $cacheInfo = [
-        "filename" => "functions.json",
-        "endpoint" => ""
-    ];
-
     private array $items = [];
+    private static self $instance;
 
     public function __construct()
     {
-        $info = self::$cacheInfo;
+        $this->items = self::fetchCache();
 
-        if (!file_exists(self::buildPath($info["filename"]))) {
-            self::updateCache();
+        self::$instance = $this;
+    }
+
+    public static function get(): self
+    {
+        return self::$instance ?? new self();
+    }
+
+    private static function fetchCache(): array
+    {
+        foreach (scandir(__DIR__) as $file) {
+            if (preg_match("/(?P<string>functions.*.json)/", $file)) {
+                $file_dir = __DIR__ . "/$file";
+            }
         }
 
-        $items = json_decode(file_get_contents(self::buildPath($info["filename"])));
+        if (!file_exists($file_dir)) {
+            self::updateCache();
+            return self::fetchCache();
+        }
+        
+        $timestamp = (int)explode(".", $file)[1];
+
+        if (time() - $timestamp > 604800) {
+            self::updateCache();
+            return self::fetchCache();
+        }
+
+        return json_decode(file_get_contents($file_dir), true);
     }
 
     private static function updateCache(): void
@@ -36,30 +56,75 @@ final class Functions {
         /** @var ResponseInterface */
         $res = await($browser->get("https://www.php.net/manual/en/indexes.functions.php"));
         $html = (string) $res->getBody();
-        $dom = (new \DOMDocument())->loadHTML($html);
-
-        $listParent = $dom->getElementById("indexes.functions");
-
-        var_dump($listParent);
+        $dom = hQuery::fromHTML($html);
 
         $cache = [];
 
-        foreach ($listParent->getElementsByTagName("a") as $item) {
-            $cacheItem = new stdClass;
-
-            $cacheItem->name = $item->textContent;
-            $cacheItem->href = $item->attributes->getNamedItem("href");
+        foreach ($dom->find("a.index") as $item) {
+            $cacheItem["name"] = $item->text();
+            $cacheItem["href"] = $item->attr("href");
             
             $cache[] = $cacheItem;
         }
 
-        $cache["cached_date"] = time();
-
-        file_put_contents(self::buildPath("functions.json"), json_encode($cache));
+        file_put_contents(__DIR__."/functions.".time().".json", json_encode($cache));
     }
 
-    private static function buildPath(string $filename): string
+    public function getByName(string $name): ?Func
     {
-        return __DIR__."/$filename";
+        $func = $this->getByNameRaw($name);
+
+        if ($func === null) {
+            return null;
+        }
+
+        return new Func($func);
+    }
+
+    public function getByNameRaw(string $name): ?array
+    {
+        foreach ($this->items as $item) {
+            if ($item["name"] === $name) {
+                return $item;
+            }
+        }
+
+        return null;
+    }
+
+    public function search(string $name, int $limit = 25): ?array
+    {
+        $list = [];
+
+        foreach ($this->items as $key => $item) {
+            $itemName = $item["name"];
+
+            if (str_contains($itemName, "::")) {
+                $itemName = explode("::", $itemName)[1];
+            }
+
+            $similar = levenshtein($item["name"], $name);
+
+            $list[] = [
+                "similar" => $similar,
+                "key" => $key
+            ];
+        }
+
+        usort($list, function ($a, $b) {
+            return ($a["similar"] > $b["similar"]);
+        });
+
+        $items = [];
+
+        foreach ($list as $item) {
+            $items[] = $this->items[$item["key"]];
+
+            if (count($items) >= $limit) {
+                break;
+            }
+        }
+
+        return $items;
     }
 }

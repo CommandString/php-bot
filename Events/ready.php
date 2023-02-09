@@ -12,9 +12,9 @@ class ready extends BaseEvent {
     private const EVENTS = 1;
     private const INTERACTIONS = 2;
 
-    public static function handler(?Discord $discord = null): void
+    public static function handler(Discord $discord = null): void
     {
-        echo "\n{$discord?->application->name} ready!\n\n";
+        echo "\n{$discord->application->name} ready!\n\n";
 
         $listened = [Env::get("commands"), Env::get("events"), Env::get("interactions")];
 

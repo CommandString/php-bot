@@ -68,6 +68,8 @@ function getOptionFromInteraction(Collection|Interaction $options, string ...$na
         $options = $options->data->options;
     }
 
+    $option = null;
+
     foreach ($names as $key => $name) {
         $option = $options->get("name", $name);
 
@@ -80,7 +82,6 @@ function getOptionFromInteraction(Collection|Interaction $options, string ...$na
         }
     }
 
-	// TODO this is probably not what you want, $option might be undefined here
     return $option;
 }
 

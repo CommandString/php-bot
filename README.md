@@ -9,9 +9,9 @@ A bot that used for helping PHP developers debug problems, search docs, and even
 
 * Functions
   * ~~Search~~
-  * **Get examples**
+  * ~~Get examples~~
   * Run examples
-* Running Code
+* **Running Code**
   * Create Command
   * Disable functions that pose a security risk
   * Allow users to store/share code ?

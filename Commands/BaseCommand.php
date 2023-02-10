@@ -8,6 +8,7 @@ use Discord\Discord;
 use Discord\Parts\Interactions\Command\Command;
 use Discord\Parts\Interactions\Interaction;
 use Exception;
+use LogicException;
 use React\Promise\ExtendedPromiseInterface;
 
 use function React\Async\await;
@@ -46,7 +47,6 @@ abstract class BaseCommand {
          * @var Discord $discord
          */
         $discord = Env::get()->discord;
-        $return = null;
 
         if (static::isGuildCommand()) {
             $commands = await($discord->guilds->get("id", static::$guild)->commands->freshen());
@@ -56,7 +56,7 @@ abstract class BaseCommand {
 
         $command = $commands->get("name", static::$name);
 
-        if (is_null($command)) {
+        if ($command === null) {
             throw new Exception("Command ".static::$name." isn't registered to the discord bot!");
         }
 
@@ -103,7 +103,7 @@ abstract class BaseCommand {
                 }, static function (Interaction $interaction) {
                     static::autocomplete($interaction);
                 });
-            } catch (\LogicException $e) {
+            } catch (LogicException $e) {
                 echo "Warning caught: {$e->getMessage()}\nIf this is about a command already existing for a command you're listening for that has a separate subcommand handler you can safely ignore this :)\n";
             }
         };

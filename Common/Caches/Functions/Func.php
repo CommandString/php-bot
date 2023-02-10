@@ -12,15 +12,15 @@ use Throwable;
 
 use function React\Async\await;
 
-class Func {
-    public readonly ReflectionFunction|ReflectionMethod $reflection;
-    public readonly string $name;
-    public readonly string $href;
-    public readonly ?string $header;
-    public readonly array $examples;
+readonly class Func {
+    public ReflectionFunction|ReflectionMethod $reflection;
+    public string                              $name;
+    public string                              $href;
+    public ?string                             $header;
+    public array                               $examples;
 
     public function __construct(
-        public readonly stdClass $raw
+        public stdClass $raw
     ) {
         $this->name = $raw->name;
         $this->href = $raw->href;
@@ -98,7 +98,7 @@ class Func {
         } catch (Throwable) {
             $headerElement = $dom->find(".description > .dc-description");
 
-            if (is_null($headerElement)) {
+            if ($headerElement === null) {
                 $this->header = "/* Cannot Generate Header */";
             } else {
                 $header = trim($headerElement->get(0)->text());

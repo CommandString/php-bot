@@ -3,13 +3,10 @@
 namespace Events;
 
 use Commands\Evall as EvalCommand;
-use Discord\Builders\MessageBuilder;
 use Discord\Discord;
 use Discord\Parts\Channel\Message;
-use Discord\Parts\Embed\Embed;
 use Discord\WebSockets\Event;
 
-use function Common\newPartDiscord;
 use function Discord\mentioned;
 
 class Evall extends BaseEvent {
@@ -22,10 +19,11 @@ class Evall extends BaseEvent {
             return;
         }
 
+		/** @var string $code */
         $code = explode('```', explode('```php', $message->content)[1] ?? "")[0] ?? "";
 
-        if (!strlen($code)) {
-            $message->reply("Unable to parse code from command")->done(function (Message $message) {
+        if ($code == '') {
+            $message->reply("Unable to parse code from command")->done(static function (Message $message) {
                 $message->delayedDelete(self::$errorDeleteTime);
             });
             return;
@@ -33,7 +31,7 @@ class Evall extends BaseEvent {
 
         $message->channel->broadcastTyping();
 
-        EvalCommand::runCode($code, EvalCommand::getUserVersion($message->author), true)->then(function ($reply) use ($message) {
+        EvalCommand::runCode($code, EvalCommand::getUserVersion($message->author))->then(static function ($reply) use ($message) {
             $message->reply($reply);
         });
     }

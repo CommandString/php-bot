@@ -3,7 +3,6 @@
 namespace Interactions;
 
 use CommandString\Env\Env;
-use CommandString\Utils\ArrayUtils;
 use Discord\Discord;
 use Discord\Parts\Interactions\Interaction;
 use Discord\WebSockets\Event;

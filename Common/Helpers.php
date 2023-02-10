@@ -77,7 +77,7 @@ function getOptionFromInteraction(Collection|Interaction $options, string ...$na
             $options = $option?->options;
         }
 
-        if (is_null($options) || is_null($option)) {
+        if ($options === null || $option === null) {
             break;
         }
     }
@@ -89,7 +89,7 @@ function emptyEmbedField(?Embed $embed = null): array|Embed
 {
     $emptyField = ["name" => "\u{200b}", "value" => "\u{200b}"];
 
-    if (!is_null($embed)) {
+    if ($embed !== null) {
         return $embed->addField($emptyField);
     }
 

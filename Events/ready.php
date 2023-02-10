@@ -19,13 +19,12 @@ class ready extends BaseEvent {
         $listened = [Env::get("commands"), Env::get("events"), Env::get("interactions")];
 
         foreach ($listened as $type => $classes) {
-            $typeString = ($type === self::COMMANDS)
-				? "command"
-				: (($type === self::EVENTS)
-					? "event"
-					: (($type === self::INTERACTIONS)
-						? "interaction"
-						: ""));
+			$typeString = match ($type) {
+				self::COMMANDS => "command",
+				self::EVENTS => "event",
+				self::INTERACTIONS => "interaction",
+				default => ""
+			};
 
             foreach ($classes as $class) {
                 if ($class !== self::class) {
@@ -37,7 +36,7 @@ class ready extends BaseEvent {
         }
 
         Env::get()->started = time();
-        
+
         \Commands\Evall::getVersions();
     }
 }

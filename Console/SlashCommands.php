@@ -7,11 +7,11 @@ use CommandString\Env\Env;
 use Discord\Discord;
 use Monolog\Handler\NullHandler;
 use Monolog\Logger;
-use \Symfony\Component\Console\Attribute\AsCommand;
-use \Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
-use \Symfony\Component\Console\Input\InputInterface;
-use \Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 use Throwable;
 
 use function React\Async\await;

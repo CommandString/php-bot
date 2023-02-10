@@ -31,31 +31,31 @@ final class Functions {
 
     private static function fetchCache(): array
     {
-        foreach (scandir(__DIR__) as $file_name) {
-            if (preg_match("/(?P<string>functions.*.json)/", $file_name)) {
-                $file_path = __DIR__ . "/{$file_name}";
+        foreach (scandir(__DIR__) as $fileName) {
+            if (preg_match("/(?P<string>functions.*.json)/", $fileName)) {
+                $file_path = __DIR__ . "/{$fileName}";
             }
         }
 
-		if (!isset($file_path, $file_name)) {
+		if (!isset($filePath, $fileName)) {
 			self::updateCache();
 			return self::fetchCache();
 		}
 
-        if (!file_exists($file_path)) {
+        if (!file_exists($filePath)) {
             self::updateCache();
             return self::fetchCache();
         }
 
-        $timestamp = (int)explode(".", $file_name)[1];
+        $timestamp = (int)explode(".", $fileName)[1];
 
         if (time() - $timestamp > 604800) {
-            unlink($file_path);
+            unlink($filePath);
             self::updateCache();
             return self::fetchCache();
         }
 
-        return json_decode(file_get_contents($file_path));
+        return json_decode(file_get_contents($filePath));
     }
 
     private static function updateCache(): void

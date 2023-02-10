@@ -6,7 +6,6 @@ use Commands\BaseCommand;
 use CommandString\Env\Env;
 use Common\Caches\Functions\Functions as FunctionsCache;
 use Discord\Builders\CommandBuilder;
-use Discord\Builders\Components\Button;
 use Discord\Builders\Components\Option;
 use Discord\Builders\Components\StringSelect;
 use Discord\Builders\MessageBuilder;
@@ -14,10 +13,8 @@ use Discord\Parts\Embed\Embed;
 use Discord\Parts\Interactions\Interaction;
 use duzun\hQuery;
 
-use function Common\buildActionRowWithButtons;
 use function Common\getOptionFromInteraction;
 use function Common\messageWithContent;
-use function Common\newButton;
 use function Common\newChoice;
 use function Common\newPartDiscord;
 use function React\Async\await;
@@ -28,8 +25,6 @@ class Functions extends BaseCommand {
     public static function handler(Interaction $interaction): void
     {
         $functionName = getOptionFromInteraction($interaction, "functions", "query")->value;
-
-        $message = MessageBuilder::new();
 
         $interaction->respondWithMessage(self::generateFunctionMessage($functionName) ?? messageWithContent("Unable to find function."));
     }
@@ -59,8 +54,8 @@ class Functions extends BaseCommand {
         ;
 
         if (!empty($func->examples)) {
-            $menu = (new StringSelect("FunctionExamples|{$func->name}"))->setPlaceholder("Examples for {$func->name}");   
-    
+            $menu = (new StringSelect("FunctionExamples|{$func->name}"))->setPlaceholder("Examples for {$func->name}");
+
             foreach ($func->examples as $key => $example) {
                 $menu->addOption(new Option($example["title"], $key));
             }

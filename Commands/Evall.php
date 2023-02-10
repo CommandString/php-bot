@@ -208,7 +208,7 @@ class Evall extends BaseCommand {
                 $deferred->resolve($message);
             }
         }, static function (ResponseException $e) use ($deferred) {
-            $deferred->reject($e->getMessage());
+            $deferred->reject($e->getResponse()->getBody());
         });
 
         return $deferred->promise();

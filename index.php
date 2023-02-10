@@ -32,6 +32,7 @@ $env->discord = new Discord([
 
 $env->commands = [
     Commands\Info::class,
+    Commands\Evall::class,
     Commands\Manual\Functions::class
 ];
 
@@ -40,7 +41,8 @@ $env->commands = [
 # |______   \/   |______ |  \_|    |    ______|
 
 $env->events = [
-    Events\ready::class
+    Events\ready::class,
+    Events\Evall::class
 ];
 
 # _____ __   _ _______ _______  ______ _______ _______ _______ _____  _____  __   _ _______
@@ -54,6 +56,8 @@ $env->interactions = [
 $env->browser = new Browser();
 
 Events\ready::listen();
+
+Commands\Evall::getVersions();
 
 #  ______ _     _ __   _
 # |_____/ |     | | \  |

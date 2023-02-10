@@ -27,7 +27,7 @@ class Evall extends BaseCommand {
     private static stdClass $tokens;
     private static stdClass $userVersions;
     private static string $defaultVersion = "8.1.2";
-    
+
     public static function handler(Interaction $interaction): void
     {
         $version = getOptionFromInteraction($interaction, "version")->value;
@@ -132,7 +132,7 @@ class Evall extends BaseCommand {
         if (!$res instanceof ResponseInterface) {
             return false;
         }
-        
+
         self::$tokens->cookies = implode(";", $res->getHeader("set-cookie"));
 
         $dom = hQuery::fromHTML($res->getBody());
@@ -141,7 +141,7 @@ class Evall extends BaseCommand {
 
         if (!isset(self::$versions)) {
             $versions = [];
-            
+
             foreach ($dom->find("[name='php-versions-checkboxes[]']") as $box) {
                 $versions[] = $box->attr("value");
             }
@@ -173,23 +173,23 @@ class Evall extends BaseCommand {
             $version = "8.1.2";
         }
 
-        $body = "editor=$code&php-versions%5B%5D=$version&error-reporting%5B%5D=E_ALL&error-reporting%5B%5D=E_ERROR&error-reporting%5B%5D=E_WARNING&error-reporting%5B%5D=E_PARSE&error-reporting%5B%5D=E_NOTICE&error-reporting%5B%5D=E_STRICT&error-reporting%5B%5D=E_DEPRECATED&output=html&ajaxResult=1&_token=".self::$tokens->csrf;
+        $body = "editor={$code}&php-versions%5B%5D={$version}&error-reporting%5B%5D=E_ALL&error-reporting%5B%5D=E_ERROR&error-reporting%5B%5D=E_WARNING&error-reporting%5B%5D=E_PARSE&error-reporting%5B%5D=E_NOTICE&error-reporting%5B%5D=E_STRICT&error-reporting%5B%5D=E_DEPRECATED&output=html&ajaxResult=1&_token=".self::$tokens->csrf;
 
         $browser->post("https://onlinephp.io/executeCode", [
             "content-type" => "application/x-www-form-urlencoded; charset=UTF-8",
             "X-CSRF-TOKEN" => self::$tokens->csrf,
             "Cookie" => self::$tokens->cookies
-        ], $body)->then(function (ResponseInterface $res) use ($deferred) {
+        ], $body)->then(static function (ResponseInterface $res) use ($deferred) {
             $dom = hQuery::fromHTML($res->getBody());
 
             $results = new stdClass;
-            
+
             $results->stats = trim(str_replace(["  ", "\n"], ["", " "], $dom->find(".result-stats")->text()));
             $results->output = trim($dom->find(".results-html")->text());
 
             $deferred->resolve($results);
-        }, function (ResponseException $e) use ($deferred) {
-            $deferred->reject();
+        }, static function (ResponseException $e) use ($deferred) {
+            $deferred->reject($e->getMessage());
         });
 
         return $deferred->promise();

@@ -30,7 +30,7 @@ class Evall extends BaseCommand {
     private static stdClass $tokens;
     private static stdClass $userVersions;
     public const DEFAULT_PHP_VERSION = "8.1.2";
-    
+
     public static function handler(Interaction $interaction): void
     {
         $version = getOptionFromInteraction($interaction, "version")->value;
@@ -182,7 +182,8 @@ class Evall extends BaseCommand {
             "content-type" => "application/x-www-form-urlencoded; charset=UTF-8",
             "X-CSRF-TOKEN" => self::$tokens->csrf,
             "Cookie" => self::$tokens->cookies
-        ], $body)->then(function (ResponseInterface $res) use ($deferred, $returnMessage, $version) {
+        ], $body)->then(static function (ResponseInterface $res) use ($returnMessage, $deferred, $version)
+		{
             $dom = hQuery::fromHTML($res->getBody());
 
             $results = new stdClass;
@@ -197,17 +198,17 @@ class Evall extends BaseCommand {
 
                 /** @var Embed $embed */
                 $embed = newPartDiscord(Embed::class);
-                
-                $embed->setTitle("PHP Version - $version");
+
+                $embed->setTitle("PHP Version - {$version}");
                 $embed->setDescription("{$results->stats}\n\n```\n$results->output\n```");
                 $embed->setTimestamp(time());
-    
+
                 $message->addEmbed($embed);
 
                 $deferred->resolve($message);
             }
-        }, function (ResponseException $e) use ($deferred) {
-            $deferred->reject();
+        }, static function (ResponseException $e) use ($deferred) {
+            $deferred->reject($e->getMessage());
         });
 
         return $deferred->promise();

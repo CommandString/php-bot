@@ -22,10 +22,11 @@ class Evall extends BaseEvent {
             return;
         }
 
+		/** @var string $code */
         $code = explode('```', explode('```php', $message->content)[1] ?? "")[0] ?? "";
 
-        if (!strlen($code)) {
-            $message->reply("Unable to parse code from command")->done(function (Message $message) {
+        if ($code == '') {
+            $message->reply("Unable to parse code from command")->done(static function (Message $message) {
                 $message->delayedDelete(self::$errorDeleteTime);
             });
             return;
@@ -35,13 +36,14 @@ class Evall extends BaseEvent {
 
         $message->channel->broadcastTyping();
 
-        EvalCommand::runCode($code, EvalCommand::getUserVersion($message->author))->then(function ($results) use ($message, $version) {
+        EvalCommand::runCode($code, EvalCommand::getUserVersion($message->author))->then(static function ($results) use ($version, $message)
+		{
             $reply = MessageBuilder::new();
 
             /** @var Embed $embed */
             $embed = newPartDiscord(Embed::class);
-            
-            $embed->setTitle("PHP Version - $version");
+
+            $embed->setTitle("PHP Version - {$version}");
             $embed->setDescription("{$results->stats}\n\n```\n$results->output\n```");
             $embed->setTimestamp(time());
 

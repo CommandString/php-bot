@@ -2,3 +2,4 @@
 env.json
 Common/Caches/*/*.json
 .idea/
+.vscode/

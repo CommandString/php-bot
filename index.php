@@ -57,8 +57,6 @@ $env->browser = new Browser();
 
 Events\ready::listen();
 
-Commands\Evall::getVersions();
-
 #  ______ _     _ __   _
 # |_____/ |     | | \  |
 # |    \_ |_____| |  \_|

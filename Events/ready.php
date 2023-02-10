@@ -37,5 +37,7 @@ class ready extends BaseEvent {
         }
 
         Env::get()->started = time();
+        
+        \Commands\Evall::getVersions();
     }
 }

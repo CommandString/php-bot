@@ -3,11 +3,11 @@
 namespace Commands;
 
 use Discord\Builders\CommandBuilder;
+use Discord\Builders\MessageBuilder;
 use Discord\Parts\Embed\Embed;
 use Discord\Parts\Interactions\Interaction;
 
 use function Common\emptyEmbedField;
-use function Common\messageWithContent;
 use function Common\newEmbedField;
 use function Common\newPartDiscord;
 
@@ -37,7 +37,7 @@ class Resources extends BaseCommand {
             }
         }
 
-        $interaction->respondWithMessage(messageWithContent("")->addEmbed($embed));
+        $interaction->respondWithMessage(MessageBuilder::new()->addEmbed($embed), true);
     }
 
     public static function getConfig(): CommandBuilder|array

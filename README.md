@@ -10,9 +10,10 @@ A bot that used for helping PHP developers debug problems, search docs, and even
 * Functions
   * ~~Search~~
   * ~~Get examples~~
-  * **Run examples**
+  * ~~Run examples~~
 * ~~Running Code~~
   * ~~Create Command~~
+  * ~~Switch Versions~~
 * Classes
   * Search
   * Get examples

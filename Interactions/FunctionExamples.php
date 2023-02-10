@@ -21,15 +21,15 @@ class FunctionExamples extends BaseInteraction {
     public static function handler(Interaction $interaction, Discord $discord, string $funcName = null, int $exampleId = -1, int $runCode = 0)
     {
         $func = Functions::get()->getByName($funcName);
-        
+
         $exampleId = $interaction->data->values[0] ?? $exampleId;
         $example = $func->examples[$exampleId] ?? null;
 
-        if (is_null($example)) {
+        if ($example === null) {
             $interaction->updateMessage(ManualFunctions::generateFunctionMessage($func->name));
             return;
         }
-        
+
         $code = $example["code"];
 
         if (!$runCode) {
@@ -43,13 +43,13 @@ class FunctionExamples extends BaseInteraction {
 
             $message->addEmbed($embed);
 
-            $message->addComponent(buildActionRowWithButtons(newButton(Button::STYLE_PRIMARY, "Function Header", "FunctionExamples|{$func->name}"), newButton(Button::STYLE_SUCCESS, "Run Example", "FunctionExamples|{$func->name}|$exampleId|1")));
+            $message->addComponent(buildActionRowWithButtons(newButton(Button::STYLE_PRIMARY, "Function Header", "FunctionExamples|{$func->name}"), newButton(Button::STYLE_SUCCESS, "Run Example", "FunctionExamples|{$func->name}|{$exampleId}|1")));
 
             $interaction->updateMessage($message);
             return;
         }
 
-        Evall::runCode($code, Evall::DEFAULT_PHP_VERSION, true)->then(function ($reply) use ($interaction) {
+        Evall::runCode($code, Evall::DEFAULT_PHP_VERSION)->then(static function ($reply) use ($interaction) {
             $interaction->updateMessage($reply);
         });
     }

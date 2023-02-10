@@ -33,7 +33,7 @@ final class Functions {
     {
         foreach (scandir(__DIR__) as $fileName) {
             if (preg_match("/(?P<string>functions.*.json)/", $fileName)) {
-                $file_path = __DIR__ . "/{$fileName}";
+				$filePath = __DIR__ . "/{$fileName}";
             }
         }
 

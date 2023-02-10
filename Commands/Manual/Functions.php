@@ -65,7 +65,7 @@ class Functions extends BaseCommand {
                 $menu->addOption(new Option($example["title"], $key));
             }
 
-            $message->addComponent($menu)->addComponent(buildActionRowWithButtons(newButton(Button::STYLE_PRIMARY, "Function Header", "FunctionExamples|{$func->name}|-1")));
+            $message->addComponent($menu);
         }
 
         $message

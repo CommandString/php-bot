@@ -2,42 +2,55 @@
 
 namespace Interactions;
 
+use Commands\Evall;
 use Commands\Manual\Functions as ManualFunctions;
 use Common\Caches\Functions\Functions;
+use Discord\Builders\Components\Button;
 use Discord\Builders\MessageBuilder;
 use Discord\Parts\Interactions\Interaction;
 use Discord\Discord;
 use Discord\Parts\Embed\Embed;
 
-use function Common\messageWithContent;
+use function Common\buildActionRowWithButtons;
+use function Common\newButton;
 use function Common\newPartDiscord;
 
 class FunctionExamples extends BaseInteraction {
     protected static string $id = "FunctionExamples";
 
-    public static function handler(Interaction $interaction, Discord $discord, string $funcName = null)
+    public static function handler(Interaction $interaction, Discord $discord, string $funcName = null, int $exampleId = -1, int $runCode = 0)
     {
         $func = Functions::get()->getByName($funcName);
-
-        $example = $func->examples[$interaction->data->values[0]] ?? null;
+        
+        $exampleId = $interaction->data->values[0] ?? $exampleId;
+        $example = $func->examples[$exampleId] ?? null;
 
         if (is_null($example)) {
             $interaction->updateMessage(ManualFunctions::generateFunctionMessage($func->name));
             return;
         }
+        
+        $code = $example["code"];
 
-        $code = "```php\n{$example["code"]}\n```";
+        if (!$runCode) {
+            $message = MessageBuilder::new();
 
-        $message = MessageBuilder::new();
+            /** @var Embed $embed */
+            $embed = newPartDiscord(Embed::class);
 
-        /** @var Embed $embed */
-        $embed = newPartDiscord(Embed::class);
+            $embed->setTitle($example["title"]);
+            $embed->setDescription("```php\n{$code}\n```");
 
-        $embed->setTitle($example["title"]);
-        $embed->setDescription($code);
+            $message->addEmbed($embed);
 
-        $message->addEmbed($embed);
+            $message->addComponent(buildActionRowWithButtons(newButton(Button::STYLE_PRIMARY, "Function Header", "FunctionExamples|{$func->name}"), newButton(Button::STYLE_SUCCESS, "Run Example", "FunctionExamples|{$func->name}|$exampleId|1")));
 
-        $interaction->updateMessage($message);
+            $interaction->updateMessage($message);
+            return;
+        }
+
+        Evall::runCode($code, Evall::DEFAULT_PHP_VERSION, true)->then(function ($reply) use ($interaction) {
+            $interaction->updateMessage($reply);
+        });
     }
 }

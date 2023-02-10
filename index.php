@@ -33,6 +33,7 @@ $env->discord = new Discord([
 $env->commands = [
     Commands\Info::class,
     Commands\Evall::class,
+    Commands\Resources::class,
     Commands\Manual\Functions::class
 ];
 

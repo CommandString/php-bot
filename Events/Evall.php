@@ -32,23 +32,9 @@ class Evall extends BaseEvent {
             return;
         }
 
-        $version = EvalCommand::getUserVersion($message->author);
-
         $message->channel->broadcastTyping();
 
-        EvalCommand::runCode($code, EvalCommand::getUserVersion($message->author))->then(static function ($results) use ($version, $message)
-		{
-            $reply = MessageBuilder::new();
-
-            /** @var Embed $embed */
-            $embed = newPartDiscord(Embed::class);
-
-            $embed->setTitle("PHP Version - {$version}");
-            $embed->setDescription("{$results->stats}\n\n```\n$results->output\n```");
-            $embed->setTimestamp(time());
-
-            $reply->addEmbed($embed);
-
+        EvalCommand::runCode($code, EvalCommand::getUserVersion($message->author), true)->then(function ($reply) use ($message) {
             $message->reply($reply);
         });
     }

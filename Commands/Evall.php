@@ -4,6 +4,8 @@ namespace Commands;
 
 use CommandString\Env\Env;
 use Discord\Builders\CommandBuilder;
+use Discord\Builders\MessageBuilder;
+use Discord\Parts\Embed\Embed;
 use Discord\Parts\Interactions\Command\Option;
 use Discord\Parts\Interactions\Interaction;
 use Discord\Parts\User\User;
@@ -19,6 +21,7 @@ use function Common\getOptionFromInteraction;
 use function Common\messageWithContent;
 use function Common\newChoice;
 use function Common\newOption;
+use function Common\newPartDiscord;
 use function React\Async\await;
 
 class Evall extends BaseCommand {
@@ -26,8 +29,8 @@ class Evall extends BaseCommand {
     private static array $versions;
     private static stdClass $tokens;
     private static stdClass $userVersions;
-    private static string $defaultVersion = "8.1.2";
-
+    public const DEFAULT_PHP_VERSION = "8.1.2";
+    
     public static function handler(Interaction $interaction): void
     {
         $version = getOptionFromInteraction($interaction, "version")->value;
@@ -43,7 +46,7 @@ class Evall extends BaseCommand {
             self::$userVersions = new stdClass;
         }
 
-        return self::$userVersions->{$user->id} ?? self::$defaultVersion;
+        return self::$userVersions->{$user->id} ?? self::DEFAULT_PHP_VERSION;
     }
 
     public static function getVersions(): array
@@ -62,7 +65,7 @@ class Evall extends BaseCommand {
         }
 
         if (!in_array($version, self::getVersions())) {
-            $version = self::$defaultVersion;
+            $version = self::DEFAULT_PHP_VERSION;
         }
 
         self::$userVersions->{$user->id} = $version;
@@ -152,7 +155,7 @@ class Evall extends BaseCommand {
         return true;
     }
 
-    public static function runCode(string $code, string $version): PromiseInterface
+    public static function runCode(string $code, string $version, bool $returnMessage = true): PromiseInterface
     {
         $browser = Env::get()->browser;
 
@@ -179,7 +182,7 @@ class Evall extends BaseCommand {
             "content-type" => "application/x-www-form-urlencoded; charset=UTF-8",
             "X-CSRF-TOKEN" => self::$tokens->csrf,
             "Cookie" => self::$tokens->cookies
-        ], $body)->then(static function (ResponseInterface $res) use ($deferred) {
+        ], $body)->then(function (ResponseInterface $res) use ($deferred, $returnMessage, $version) {
             $dom = hQuery::fromHTML($res->getBody());
 
             $results = new stdClass;
@@ -187,9 +190,24 @@ class Evall extends BaseCommand {
             $results->stats = trim(str_replace(["  ", "\n"], ["", " "], $dom->find(".result-stats")->text()));
             $results->output = trim($dom->find(".results-html")->text());
 
-            $deferred->resolve($results);
-        }, static function (ResponseException $e) use ($deferred) {
-            $deferred->reject($e->getMessage());
+            if (!$returnMessage) {
+                $deferred->resolve($results);
+            } else {
+                $message = MessageBuilder::new();
+
+                /** @var Embed $embed */
+                $embed = newPartDiscord(Embed::class);
+                
+                $embed->setTitle("PHP Version - $version");
+                $embed->setDescription("{$results->stats}\n\n```\n$results->output\n```");
+                $embed->setTimestamp(time());
+    
+                $message->addEmbed($embed);
+
+                $deferred->resolve($message);
+            }
+        }, function (ResponseException $e) use ($deferred) {
+            $deferred->reject();
         });
 
         return $deferred->promise();

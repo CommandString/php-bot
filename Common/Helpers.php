@@ -7,7 +7,6 @@ use Discord\Builders\Components\ActionRow;
 use Discord\Builders\Components\Button;
 use Discord\Builders\MessageBuilder;
 use Discord\Helpers\Collection;
-use Discord\Parts\Channel\Attachment;
 use Discord\Parts\Embed\Embed;
 use Discord\Parts\Interactions\Command\Choice;
 use Discord\Parts\Interactions\Command\Option;

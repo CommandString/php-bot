@@ -31,7 +31,10 @@ $env->discord = new Discord([
 # |_____  |_____| |  |  | |  |  | |     | |  \_| |_____/ ______|
 
 $env->commands = [
-    Commands\Info::class
+    Commands\Info::class,
+    Commands\Evall::class,
+    Commands\Resources::class,
+    Commands\Manual\Functions::class
 ];
 
 # _______ _    _ _______ __   _ _______ _______
@@ -39,14 +42,17 @@ $env->commands = [
 # |______   \/   |______ |  \_|    |    ______|
 
 $env->events = [
-    Events\ready::class
+    Events\ready::class,
+    Events\Evall::class
 ];
 
 # _____ __   _ _______ _______  ______ _______ _______ _______ _____  _____  __   _ _______
 #   |   | \  |    |    |______ |_____/ |_____| |          |      |   |     | | \  | |______
 # __|__ |  \_|    |    |______ |    \_ |     | |_____     |    __|__ |_____| |  \_| ______|
 
-$env->interactions = [];
+$env->interactions = [
+    Interactions\FunctionExamples::class
+];
 
 $env->browser = new Browser();
 

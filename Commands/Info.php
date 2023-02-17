@@ -17,10 +17,10 @@ class Info extends BaseCommand {
 
     public static function handler(Interaction $interaction): void
     {
-        /** @var Embed */
+        /** @var Embed $embed */
         $embed = newPartDiscord(Embed::class);
 
-        $embed->addField(newEmbedField("Version", phpversion()));
+        $embed->addField(newEmbedField("Version", PHP_VERSION));
         $embed->addField(newEmbedField("Guilds", count(Env::get()->discord->guilds)));
         $embed->addField(newEmbedField("Source Code", "https://github.com/commandstring/php-bot"));
         $embed->setFooter("Started ".(new Carbon(Env::get()->started))->since());

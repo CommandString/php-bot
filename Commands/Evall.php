@@ -208,11 +208,7 @@ class Evall extends BaseCommand {
 
                 $message->addEmbed($embed);
                 $message->addComponent(buildActionRowWithButtons(newButton(Button::STYLE_DANGER, "Delete")->setListener(function (Interaction $interaction) {
-                    if ($interaction->message->author->id === $interaction->user->id) {
-                        $interaction->message->delete();
-                    } else {
-                        $interaction->respondWithMessage(messageWithContent("You do not have permission to delete this"), true);
-                    }
+                    $interaction->message->delete();
                 }, Env::get()->discord)));
 
                 $deferred->resolve($message);

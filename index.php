@@ -34,7 +34,8 @@ $env->commands = [
     Commands\Info::class,
     Commands\Evall::class,
     Commands\Resources::class,
-    Commands\Manual\Functions::class
+    Commands\Manual\Functions::class,
+    Commands\CodeBlocks::class
 ];
 
 # _______ _    _ _______ __   _ _______ _______

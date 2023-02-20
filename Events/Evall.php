@@ -19,6 +19,11 @@ class Evall extends BaseEvent {
             return;
         }
 
+        if ($message->referenced_message !== null) {
+            $message->delete();
+            $message = $message->referenced_message;
+        }
+
 		/** @var string $code */
         $code = explode('```', explode('```php', $message->content)[1] ?? "")[0] ?? "";
 

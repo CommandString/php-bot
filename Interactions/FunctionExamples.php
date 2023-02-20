@@ -31,6 +31,7 @@ class FunctionExamples extends BaseInteraction {
         }
 
         $code = $example["code"];
+        $actionRow = buildActionRowWithButtons(newButton(Button::STYLE_PRIMARY, "Function Header", "FunctionExamples|{$func->name}"), newButton(Button::STYLE_SUCCESS, "Run Example", "FunctionExamples|{$func->name}|{$exampleId}|1"));
 
         if (!$runCode) {
             $message = MessageBuilder::new();
@@ -42,15 +43,14 @@ class FunctionExamples extends BaseInteraction {
             $embed->setDescription("```php\n{$code}\n```");
 
             $message->addEmbed($embed);
-
-            $message->addComponent(buildActionRowWithButtons(newButton(Button::STYLE_PRIMARY, "Function Header", "FunctionExamples|{$func->name}"), newButton(Button::STYLE_SUCCESS, "Run Example", "FunctionExamples|{$func->name}|{$exampleId}|1")));
+            $message->addComponent($actionRow);
 
             $interaction->updateMessage($message);
             return;
         }
 
-        Evall::runCode($code, Evall::DEFAULT_PHP_VERSION)->then(static function ($reply) use ($interaction) {
-            $interaction->updateMessage($reply);
+        Evall::runCode($code, Evall::DEFAULT_PHP_VERSION)->then(static function ($reply) use ($interaction, $actionRow) {
+            $interaction->updateMessage($reply->addComponent($actionRow));
         });
     }
 }

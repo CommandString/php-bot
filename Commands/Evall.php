@@ -4,6 +4,7 @@ namespace Commands;
 
 use CommandString\Env\Env;
 use Discord\Builders\CommandBuilder;
+use Discord\Builders\Components\Button;
 use Discord\Builders\MessageBuilder;
 use Discord\Parts\Embed\Embed;
 use Discord\Parts\Interactions\Command\Option;
@@ -17,8 +18,10 @@ use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
 use stdClass;
 
+use function Common\buildActionRowWithButtons;
 use function Common\getOptionFromInteraction;
 use function Common\messageWithContent;
+use function Common\newButton;
 use function Common\newChoice;
 use function Common\newOption;
 use function Common\newPartDiscord;
@@ -204,6 +207,13 @@ class Evall extends BaseCommand {
                 $embed->setTimestamp(time());
 
                 $message->addEmbed($embed);
+                $message->addComponent(buildActionRowWithButtons(newButton(Button::STYLE_DANGER, "Delete")->setListener(function (Interaction $interaction) {
+                    if ($interaction->message->author->id === $interaction->user->id) {
+                        $interaction->message->delete();
+                    } else {
+                        $interaction->respondWithMessage(messageWithContent("You do not have permission to delete this"), true);
+                    }
+                }, Env::get()->discord)));
 
                 $deferred->resolve($message);
             }

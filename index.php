@@ -42,7 +42,7 @@ $env->commands = [
 # |______   \/   |______ |  \_|    |    ______|
 
 $env->events = [
-    Events\ready::class,
+    Events\init::class,
     Events\Evall::class
 ];
 

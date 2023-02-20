@@ -56,7 +56,7 @@ $env->interactions = [
 
 $env->browser = new Browser();
 
-Events\ready::listen();
+Events\init::listen();
 
 #  ______ _     _ __   _
 # |_____/ |     | | \  |
